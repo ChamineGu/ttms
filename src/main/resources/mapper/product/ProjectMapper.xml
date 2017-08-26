@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.tedu.ttms.product.dao.ProjectDao">
+	<select id="findObjects" resultType="cn.tedu.ttms.product.entity.Project">
+		select * 
+		from tms_projects 
+		<where>
+			<if test='name!=null and name!=""'>
+				and name like concat("%",#{name},"%")
+			</if>
+			<if test="valid!=null">
+				and valid=#{valid}
+			</if>
+		</where>
+		order by createdTime desc 
+		limit #{startIndex},#{pageSize};
+	</select>
+	<!-- 查询表中总记录数(要根据此数据计算总页数 -->
+	<select id="getRowCount" resultType="java.lang.Integer">
+		select count(*) 
+		from tms_projects 
+		<where>
+			<if test='name!=null and name!=""'>
+				and name like concat("%",#{name},"%")
+			</if>
+			<if test="valid!=null">
+				and valid=#{valid}
+			</if>
+		</where>
+	</select>
+	<insert id="insertObject" parameterType="cn.tedu.ttms.product.entity.Project">
+	<!-- MyBatis自动解析属性值 -->
+		insert into tms_projects(
+		id,
+		name,
+		code,
+		beginDate,
+		endDate,
+		valid,
+		note,
+		createdTime,
+		modifiedTime,
+		createdUser,
+		modifiedUser
+		)values(
+		#{id},
+		#{name},
+		#{code},
+		#{beginDate},
+		#{endDate},
+		#{valid},
+		#{note},
+		now(),
+		now(),
+		#{createdUser},
+		#{modifiedUser}
+		);
+	</insert>
+	
+	<update id="updateObject" parameterType="cn.tedu.ttms.product.entity.Project">
+		update tms_projects
+		set
+			name=#{name},
+			code=#{code},
+			beginDate=#{beginDate},
+			endDate=#{endDate},
+			valid=#{valid},
+			note=#{note},
+			modifiedTime=now(),
+			modifiedUser=#{modifiedUser}
+		where id=#{id}
+	
+	</update>
+	<update id="validById">
+	<!-- update tms_projects
+		 set valid=?,modifiedTime=now()
+		 where id in=(xx,xx,xx)
+		  -->
+		update tms_projects
+		set valid=#{valid},modifiedTime=now()
+		where id in
+		<!-- foreach 把传进来的String数组,迭代拼接成(1,2,3)格式
+			 if 对ids做判断 -->
+		<if test="ids!=null and ids.length>0">
+		<foreach collection="ids"
+				 open="("
+				 close=")"
+				 separator=","
+				 item="item">
+				 #{item}
+		</foreach>
+		</if>
+	</update>
+	<!-- 根据id查找某条记录 -->
+	<select id="findObjectById" resultType="cn.tedu.ttms.product.entity.Project">
+		select * 
+		from tms_projects
+		where id=#{id}
+	</select>
+</mapper> 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
